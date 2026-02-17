@@ -41,6 +41,12 @@ export default {
 
 		const parser = new Parser({
 			defaultRSS: 2.0,
+			customFields: {
+				item: [
+					['media:thumbnail', 'media:thumbnail'],
+					['media:content', 'media:content'],
+				],
+			},
 			xml2js: {
 				emptyTag: '--EMPTY--',
 			},
@@ -53,6 +59,24 @@ export default {
 
 		const xmlText = await xmlResponse.text();
 		const feed = await parser.parseString(xmlText);
+
+		// Post-process to extract thumbnail URL for each item
+		if (feed && feed.items) {
+			feed.items = feed.items.map(item => {
+				const mediaThumb = item['media:thumbnail'];
+				const mediaContent = item['media:content'];
+
+				if (mediaThumb) {
+					const t = Array.isArray(mediaThumb) ? mediaThumb[0] : mediaThumb;
+					item.thumbnail = t.$?.url || t.url || item.thumbnail;
+				} else if (mediaContent) {
+					const c = Array.isArray(mediaContent) ? mediaContent[0] : mediaContent;
+					item.thumbnail = c.$?.url || c.url || item.thumbnail;
+				}
+				return item;
+			});
+		}
+
 		const body = JSON.stringify({ feed });
 
 		const response = new Response(body, {
