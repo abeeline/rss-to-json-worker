@@ -1,7 +1,5 @@
-name = "xml-to-json"
-type = "webpack"
-
-account_id = "eadd5e694ea3d2ccce82a72e127173a7"
+name = "rss-to-json-worker"
+main = "index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat" ]
 workers_dev = true
-route = ""
-zone_id = ""
